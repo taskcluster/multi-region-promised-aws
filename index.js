@@ -15,6 +15,7 @@ function MultiAWS(nameOrConstructor, config, regions) {
     // They all use upper case... right?
     if (Object.keys(aws).indexOf(nameOrConstructor) == -1) {
       throw new Error(nameOrConstructor + ' is not a valid Aws Product');
+    }
     constructor = aws[nameOrConstructor];
   } else if (typeof nameOrConstructor === 'function') {
     constructor = nameOrConstructor;

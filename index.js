@@ -54,33 +54,49 @@ function MultiAWS(nameOrConstructor, config, regions) {
     return typeof that.apiObjs[regions[0]].__proto__[x] === 'function';
   });
 
+  this.filter = function(regions) {
+     
+  };
+
+  function runApiMethod(name, regions, args) {
+    // I'm not 100% sure that this .call thing is done right
+    var regionPromises = regions.map(function(region) {
+      var apiObj = that.apiObjs[region];
+      return apiObj[name].apply(apiObj, args).promise(); 
+    });
+
+    // Make the request for each region
+    var p = Promise.all(regionPromises)
+
+    // Put everything into an region-keyed object
+    p = p.then(function(res) {
+      debug('all promises done');
+      var result = {};
+      regions.forEach(function(region, idx) {
+        result[region] = res[idx].data;
+      });
+      return Promise.resolve(result);
+    });
+
+    return p;
+  };
 
   apiMethods.forEach(function(name) {
     that[name] = function() {
       // Save the args to pass onto the API
       var args = Array.prototype.slice.call(arguments);
-
-      // I'm not 100% sure that this .call thing is done right
-      var regionPromises = regions.map(function(region) {
-        var apiObj = that.apiObjs[region];
-        return apiObj[name].apply(apiObj, args).promise(); 
-      });
-
-      // Make the request for each region
-      var p = Promise.all(regionPromises)
-
-      // Put everything into an region-keyed object
-      p = p.then(function(res) {
-        debug('all promises done');
-        var result = {};
-        regions.forEach(function(region, idx) {
-          result[region] = res[idx].data;
-        });
-        return Promise.resolve(result);
-      });
-
-      return p;
+      return runApiMethod(name, regions, args); 
     };
+
+    that[name].inRegion = function(region) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      return runApiMethod(name, [region], args);
+    }
+
+    that[name].inRegions = function(regions) {
+      var args = Array.prototype.slice.call(arguments, 1);
+      return runApiMethod(name, regions, args);
+    }
   });
 }
 

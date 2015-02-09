@@ -57,7 +57,9 @@ describe('constructor', function() {
     });
   });
 });
-describe('Functions', function() {
+
+
+describe('functionality', function() {
   var multiAws;
   var result;
 
@@ -82,6 +84,30 @@ describe('Functions', function() {
       return result.then(function(r) {
         r[region].should.have.a.property('SpotPriceHistory');
       });
+    });
+  });
+
+  describe('using inRegions', function () {
+    it('should allow using less than all configured regions', function() {
+      var req = { InstanceTypes: ['t1-micro'] };
+      var p = multiAws.describeSpotPriceHistory.inRegions(['us-west-2'], req);
+      p = p.then(function(res) {
+        res.should.be.an.Object;
+        res.should.have.a.property('us-west-2');
+        res.should.not.have.a.property('us-west-1');
+      });
+      return p;
+    });
+
+    it('should allow using a single region as a string', function() {
+      var req = { InstanceTypes: ['t1-micro'] };
+      var p = multiAws.describeSpotPriceHistory.inRegion('us-west-2', req);
+      p = p.then(function(res) {
+        res.should.be.an.Object;
+        res.should.have.a.property('us-west-2');
+        res.should.not.have.a.property('us-west-1');
+      });
+      return p;
     });
   });
 

@@ -49,7 +49,11 @@ function MultiAWS(nameOrConstructor, config, regions) {
 
   // Let's figure out which methods exist in this API so we know which ones to offer
   // Assume that all apis have the same selection of methods...
-  var apiMethods = Object.keys(this.apiObjs[regions[0]].__proto__);
+  var apiMethods = Object.keys(this.apiObjs[regions[0]].__proto__).filter(function(x) {
+    // We only want to work on functions
+    return typeof that.apiObjs[regions[0]].__proto__[x] === 'function';
+  });
+
 
   apiMethods.forEach(function(name) {
     that[name] = function() {

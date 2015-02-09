@@ -1,0 +1,32 @@
+{
+  "name": "multi-region-promised-aws",
+  "version": "0.0.1",
+  "description": "Multi-region AWS SDK",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.1.8",
+    "aws-sdk-promise": "0.0.2",
+    "debug": "^2.1.1",
+    "lodash": "^3.1.0",
+    "promise": "^6.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taskcluster/multi-region-promised-aws.git"
+  },
+  "keywords": [
+    "aws",
+    "multi",
+    "promise"
+  ],
+  "author": "John Ford <jhford@mozilla.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/taskcluster/multi-region-promised-aws/issues"
+  },
+  "homepage": "https://github.com/taskcluster/multi-region-promised-aws"
+}

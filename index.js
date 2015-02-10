@@ -54,10 +54,6 @@ function MultiAWS(nameOrConstructor, config, regions) {
     return typeof that.apiObjs[regions[0]].__proto__[x] === 'function';
   });
 
-  this.filter = function(regions) {
-     
-  };
-
   function runApiMethod(name, regions, args) {
     // I'm not 100% sure that this .call thing is done right
     var regionPromises = regions.map(function(region) {

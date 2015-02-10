@@ -73,7 +73,6 @@ describe('functionality', function() {
 
   it('should be able to make || calls with multiple regions', function () {
     return result.then(function(r) {
-        console.log(r);
       result.should.be.an.Object;
       return r;
     });

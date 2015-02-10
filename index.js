@@ -86,7 +86,15 @@ function MultiAWS(nameOrConstructor, config, regions) {
 
     that[name].inRegion = function(region) {
       var args = Array.prototype.slice.call(arguments, 1);
-      return runApiMethod(name, [region], args);
+      
+      var p = runApiMethod(name, [region], args);
+      
+      p = p.then(function(result) {
+        var thisRegions = result[region];
+        return Promise.resolve(thisRegions);
+      });
+
+      return p;
     }
 
     that[name].inRegions = function(regions) {

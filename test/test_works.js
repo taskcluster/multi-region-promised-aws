@@ -103,8 +103,9 @@ describe('functionality', function() {
       var p = multiAws.describeSpotPriceHistory.inRegion('us-west-2', req);
       p = p.then(function(res) {
         res.should.be.an.Object;
-        res.should.have.a.property('us-west-2');
+        res.should.have.a.property('SpotPriceHistory');
         res.should.not.have.a.property('us-west-1');
+        res.should.not.have.a.property('us-west-2');
       });
       return p;
     });

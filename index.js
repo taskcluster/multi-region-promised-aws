@@ -5,7 +5,54 @@ var lodash = require('lodash');
 var debug = require('debug')('multi-region-promised-aws');
 var Promise = require('promise');
 
-// TODO: allow for each region to have its own defaults and settings
+/**
+ * MultiAWS Objects mirror the objects provided by the upstream AWS SDK.
+ * Each function returns a promise instead of completing a callback.
+ * Because each AWS region is completely separate from all others, we need
+ * to create a collection of upstream API objects.
+ * 
+ * The MultiAWS constructor takes three arguments:
+ *   - nameOrConstructor: This is either a string which corresponds to the API
+ *                        requested, or a reference to the AWS SDK constructor.
+ *                        Example: `'EC2'`, `multi-region-promised-aws.aws.EC2`
+ *   - config: This configuration object is passed directly to each region's
+ *             api object.  In order to ensure that things work as expected,
+ *             you must not specificy the `region` key in this object.
+ *   - regions: This is an Array which lits the set of regions that to run
+ *              commands in.  APIs can be run in a subset of regions with the
+ *              .inRegion() and .inRegions() methods.
+ *
+ * The promise resolution for api methods called in all configured regions
+ * or in a list of regions is structured like this:
+ *
+ *   {us-west-2: {<aws_data_for_us-west-2>}, us-west-1: {<aws_data_for_us-west-1>}}
+ *
+ * The raw response object is not included in the resolution value
+ *
+ * Example:
+ *     var Aws = require('multi-region-promised-aws');
+ *     var aws = new Aws('EC2', {}, ['us-west-1', 'us-west-2', 'us-east-1']);
+ * 
+ *     // Run this command in all regions
+ *     aws.describeSpotPriceHistory({<AwsRequest>}).then(function(x) {
+ *       console.log(x);
+ *     });
+ *     // x === {us-west-1: {}, us-west-2: {}, us-east-1: {}};
+ *     
+ *     // Run this in two regions 
+ *     aws.describeSpotPriceHistory.inRegions(['us-west-1', 'us-west-2'], {<AwsRequest})
+ *       .then(function(x) {
+ *       console.log(x);
+ *     });
+ *     // x === {us-west-1: {}, us-west-2: {}};
+ *     
+ *     // Run in a single region. NOTE: return value is API return value
+ *     // without region-keyed wrapping object
+ *     aws.describeSpotPriceHistory.inRegion('us-west-1', {<AwsRequest>}).then(function(x) {
+ *       console.log(x);
+ *     }
+ *     // x === {}
+ */
 function MultiAWS(nameOrConstructor, config, regions) {
   var that = this;
   this.apiObjs = {};
@@ -28,9 +75,7 @@ function MultiAWS(nameOrConstructor, config, regions) {
     throw new Error('To avoid a footgun, your AWS config should not specify region');
   }
 
-  // All I care that regions has a forEach, map and filter.  I don't
-  // care if it will return true for Array.isArray()
-  if (!regions.forEach || !regions.map || !regions.filter) {
+  if (!Array.isArray(regions)) {
     throw new Error('Regions list must be an Array');
   }
 
@@ -71,7 +116,7 @@ function MultiAWS(nameOrConstructor, config, regions) {
       regions.forEach(function(region, idx) {
         result[region] = res[idx].data;
       });
-      return Promise.resolve(result);
+      return result;
     });
 
     return p;
@@ -91,7 +136,7 @@ function MultiAWS(nameOrConstructor, config, regions) {
       
       p = p.then(function(result) {
         var thisRegions = result[region];
-        return Promise.resolve(thisRegions);
+        return thisRegions;
       });
 
       return p;

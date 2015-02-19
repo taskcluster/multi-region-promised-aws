@@ -1,6 +1,6 @@
 {
   "name": "multi-region-promised-aws",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Multi-region AWS SDK",
   "main": "index.js",
   "dependencies": {

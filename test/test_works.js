@@ -1,6 +1,5 @@
 'use strict';
 var subject = require('../index');
-var should = require('should');
 
 describe('constructor', function() {
   describe('should fail', function() {

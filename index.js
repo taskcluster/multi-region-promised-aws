@@ -2,7 +2,6 @@
 
 var aws = require('aws-sdk-promise');
 var lodash = require('lodash');
-var debug = require('debug')('multi-region-promised-aws');
 var Promise = require('promise');
 
 /**
@@ -84,7 +83,6 @@ function MultiAWS(nameOrConstructor, config, regions) {
       throw new Error(region + ' is not a string as it should be');
     }
     var regionCfg = lodash.defaults({region: region}, config);
-    debug('Creating API object for region %s with config %s', region, regionCfg);
     that.apiObjs[region] = new constructor(regionCfg);
   });
 
@@ -111,7 +109,6 @@ function MultiAWS(nameOrConstructor, config, regions) {
 
     // Put everything into an region-keyed object
     p = p.then(function(res) {
-      debug('all promises done');
       var result = {};
       regions.forEach(function(region, idx) {
         result[region] = res[idx].data;

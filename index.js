@@ -10,7 +10,7 @@ var Promise = require('promise');
  * Each function returns a promise instead of completing a callback.
  * Because each AWS region is completely separate from all others, we need
  * to create a collection of upstream API objects.
- * 
+ *
  * The MultiAWS constructor takes three arguments:
  *   - nameOrConstructor: This is either a string which corresponds to the API
  *                        requested, or a reference to the AWS SDK constructor.
@@ -32,20 +32,20 @@ var Promise = require('promise');
  * Example:
  *     var Aws = require('multi-region-promised-aws');
  *     var aws = new Aws('EC2', {}, ['us-west-1', 'us-west-2', 'us-east-1']);
- * 
+ *
  *     // Run this command in all regions
  *     aws.describeSpotPriceHistory({<AwsRequest>}).then(function(x) {
  *       console.log(x);
  *     });
  *     // x === {us-west-1: {}, us-west-2: {}, us-east-1: {}};
- *     
- *     // Run this in two regions 
+ *
+ *     // Run this in two regions
  *     aws.describeSpotPriceHistory.inRegions(['us-west-1', 'us-west-2'], {<AwsRequest})
  *       .then(function(x) {
  *       console.log(x);
  *     });
  *     // x === {us-west-1: {}, us-west-2: {}};
- *     
+ *
  *     // Run in a single region. NOTE: return value is API return value
  *     // without region-keyed wrapping object
  *     aws.describeSpotPriceHistory.inRegion('us-west-1', {<AwsRequest>}).then(function(x) {
@@ -70,7 +70,7 @@ function MultiAWS(nameOrConstructor, config, regions) {
   } else {
     throw new Error('First argument must be a string or function');
   }
-  
+
   if (config.region) {
     throw new Error('To avoid a footgun, your AWS config should not specify region');
   }
@@ -131,9 +131,9 @@ function MultiAWS(nameOrConstructor, config, regions) {
 
     that[name].inRegion = function(region) {
       var args = Array.prototype.slice.call(arguments, 1);
-      
+
       var p = runApiMethod(name, [region], args);
-      
+
       p = p.then(function(result) {
         var thisRegions = result[region];
         return thisRegions;

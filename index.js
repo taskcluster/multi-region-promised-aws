@@ -78,6 +78,8 @@ function MultiAWS(nameOrConstructor, config, regions) {
     throw new Error('Regions list must be an Array');
   }
 
+  this.regions = regions;
+
   regions.forEach(function(region) {
     if (typeof region !== 'string') {
       throw new Error(region + ' is not a string as it should be');

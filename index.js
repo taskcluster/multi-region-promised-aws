@@ -3,6 +3,7 @@
 var aws = require('aws-sdk-promise');
 var lodash = require('lodash');
 var Promise = require('promise');
+var debug = require('debug')('aws');
 
 /**
  * MultiAWS Objects mirror the objects provided by the upstream AWS SDK.
@@ -101,8 +102,15 @@ function MultiAWS(nameOrConstructor, config, regions) {
 
   function runApiMethod(name, regions, args) {
     // I'm not 100% sure that this .call thing is done right
+    var startTime = new Date();
+    if (process.env.AWS_SUPER_DUPER_DEBUG) {
+      debug('running %s in %j with args:\n%j', name, regions, args);
+    } else {
+      debug('running %s in %j', name, regions);
+    }
     var regionPromises = regions.map(function(region) {
       var apiObj = that.apiObjs[region];
+      debug('running %s in %s', name, region);
       return apiObj[name].apply(apiObj, args).promise(); 
     });
 
@@ -113,9 +121,21 @@ function MultiAWS(nameOrConstructor, config, regions) {
     p = p.then(function(res) {
       var result = {};
       regions.forEach(function(region, idx) {
+        if (process.env.AWS_SUPER_DUPER_DEBUG) {
+          debug('completed %s in %s with result:\n%j', name, region, res[idx].data);
+        } else {
+          debug('completed %s in %s', name, region);
+        }
         result[region] = res[idx].data;
       });
       return result;
+    });
+
+    p = p.then(function(x) {
+      var endTime = new Date();
+      var diff = (endTime - startTime);
+      debug('completed %s in %j in %ds', name, regions, diff / 1000);
+      return x;
     });
 
     return p;

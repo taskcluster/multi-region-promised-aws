@@ -1,4 +1,3 @@
-[![Build Status](https://travis-ci.org/taskcluster/multi-region-promised-aws.svg?branch=master)](https://travis-ci.org/taskcluster/multi-region-promised-aws)
 Make calls to multiple regions of AWS at the same time.  This library has logic
 to configure a multi-region AWS api object which can run methods in all regions
 it knows about or a specific subset of them.  Likewise, the results from the

@@ -114,6 +114,13 @@ function MultiAWS(nameOrConstructor, config, regions) {
       return apiObj[name].apply(apiObj, args).promise(); 
     });
 
+    // Should I throw because of completion
+    var maxCmdTime = 1000 * 60 * 2; // 2 minutes
+    var timeout = setTimeout(function() {
+      debug('Multi-region aws has frozen');
+      process.exit(-1);
+    }, maxCmdTime);
+
     // Make the request for each region
     var p = Promise.all(regionPromises)
 
@@ -135,7 +142,14 @@ function MultiAWS(nameOrConstructor, config, regions) {
       var endTime = new Date();
       var diff = (endTime - startTime);
       debug('completed %s in %j in %ds', name, regions, diff / 1000);
+      clearTimeout(timeout);
       return x;
+    });
+
+    p = p.catch(function(x) {
+      clearTimeout(timeout);
+      debug('promise rejected in multi-aws-thingy: ' + name + ', ' + regions + ', ' + args);
+      return new Promise.reject(x);
     });
 
     return p;
